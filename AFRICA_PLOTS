@@ -1,0 +1,37 @@
+# import packages
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.ndimage.filters import gaussian_filter1d
+
+# read in csv
+df = pd.read_csv('/Users/user/Desktop/CNTRY_AVG/TA/ERA5_TA-_0002m_ADMIN-0_Glob_025d_01y_1979_2018.csv', 
+                 index_col=0,parse_dates=True)
+
+# Create lists for countries, database columns, smoothing
+w_africa = ('SEN','GMB','GNB','GIN','SLE','LBR')
+w_df = (df.SEN, df.GMB, df.GNB, df.GIN, df.SLE, df.LBR)
+colors = ('#FF0000','#FF3300','#FF6600','#FF9900','#FFCC00','#FFFF00')
+
+# wrap plotting inside style context for nice looking plot theme
+with plt.style.context('Solarize_Light2'):
+    
+    # smooth plots with gaussian filter, set sigma for amount of smoothing
+    for (w, wd, c) in zip(w_africa, w_df, colors): 
+        s = gaussian_filter1d(wd, sigma=5)
+        plt.plot(df.index, s ,linestyle='--',color=c) 
+    
+    # setup plot with labels and title
+    fig = plt.gcf()
+    fig.set_size_inches(18.5, 10.5)
+    plt.xlabel('Year', fontsize=14)
+    plt.ylabel('Celcius', fontsize=14)
+    fig.suptitle('Area averaged ERA5 temperature data, for selected countries in W.Africa.', fontsize=16)
+    
+    # add the unsmoothed line plots per country for reference
+    for wd, c in zip(w_df, colors):
+        wd.plot(color = c)
+    plt.legend()
+
+# display plot
+plt.show()
